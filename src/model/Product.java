@@ -10,7 +10,23 @@ public class Product {
   private int timesPurchased;
 
   public Product() {
-    
+
+  }
+  
+  public int compareToNames(Product otherProduct){
+    return this.name.compareTo(otherProduct.name);
+  }
+
+  public int compareToPrices(Product otherProduct) {
+    return Double.compare(this.price, otherProduct.price);
+  }
+
+  public int compareToCategories(Product otherProduct) {
+    return this.category.toString().compareTo(otherProduct.category.toString());
+  }
+
+  public int compareToTimesPurchased(Product otherProduct) {
+    return Integer.compare(this.timesPurchased, otherProduct.timesPurchased);
   }
 
   public String getName() {

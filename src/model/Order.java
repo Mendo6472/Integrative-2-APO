@@ -7,10 +7,22 @@ public class Order {
   private String buyerName;
   private ArrayList<Pair<String, Integer>> productsList;
   private double totalPrice;
-  private Date date;
+  private Date purchaseDate;
 
   public Order() {
-    
+
+  }
+  
+  public int compareToBuyerName(Order OtherOrder) {
+    return this.buyerName.compareTo(OtherOrder.buyerName);
+  }
+
+  public int compareToTotalPrice(Order otherOrder) {
+    return Double.compare(this.totalPrice, otherOrder.totalPrice);
+  }
+
+  public int compareToPurchaseDate(Order otherOrder) {
+    return Long.compare(this.purchaseDate.getTime(), otherOrder.purchaseDate.getTime());
   }
 
   public String getBuyerName() {
@@ -37,13 +49,11 @@ public class Order {
     this.totalPrice = totalPrice;
   }
 
-  public Date getDate() {
-    return date;
+  public Date getPurchaseDate() {
+    return purchaseDate;
   }
 
-  public void setDate(Date date) {
-    this.date = date;
+  public void setPurchaseDate(Date purchaseDate) {
+    this.purchaseDate = purchaseDate;
   }
-
-
 }

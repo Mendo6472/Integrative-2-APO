@@ -1,3 +1,4 @@
+package models;
 import java.util.Locale.Category;
 
 public class Product {

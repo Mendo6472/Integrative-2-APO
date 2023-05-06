@@ -1,6 +1,7 @@
+package models;
 import java.util.ArrayList;
 import java.util.Date;
-import datastructures.Pair;
+import datastructure.Pair;
 
 public class Order {
   

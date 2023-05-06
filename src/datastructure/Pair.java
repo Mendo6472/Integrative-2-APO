@@ -1,3 +1,4 @@
+package datastructure;
 public class Pair<A, B> {
 
   private A left;

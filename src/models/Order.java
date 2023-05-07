@@ -1,4 +1,7 @@
 package models;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import datastructure.Pair;
@@ -10,11 +13,16 @@ public class Order {
   private double totalPrice;
   private Date purchaseDate;
 
-  public Order(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice, Date purchaseDate) {
+  public Order(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice) throws ParseException {
     this.buyerName = buyerName;
     this.productsList = productsList;
     this.totalPrice = totalPrice;
-    this.purchaseDate = purchaseDate;
+    LocalDate currentDate = LocalDate.now();
+    int currentDay = currentDate.getDayOfMonth();
+    int currentMonth = currentDate.getMonthValue();
+    int currentYear = currentDate.getYear();
+    String date = currentDay+"/"+currentMonth+"/"+currentYear;
+    purchaseDate = new SimpleDateFormat("dd/MM/yyyy").parse(date);
   }
   
   public int compareToBuyerName(Order OtherOrder) {

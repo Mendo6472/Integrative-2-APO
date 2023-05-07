@@ -22,7 +22,7 @@ public class Product {
   }
 
   public int compareToPrices(Product otherProduct) {
-    return Double.compare(this.price, otherProduct.price);
+    return Double.compare(otherProduct.price, this.price);
   }
 
   public int compareToCategories(Product otherProduct) {

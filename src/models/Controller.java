@@ -1,8 +1,13 @@
 package models;
+import exceptions.*;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import com.google.gson.reflect.TypeToken;
+import java.util.Date;
 import datastructure.Pair;
+import java.util.Calendar;
 public class Controller {
 
   private ArrayList<Product> products;
@@ -30,8 +35,8 @@ public class Controller {
     connectionProducts.updateEntity(products);
   }
 
-  public void addOrder(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice, Date purchaseDate) {
-    Order order = new Order(buyerName, productsList, totalPrice, purchaseDate);
+  public void addOrder(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice) throws ParseException {
+    Order order = new Order(buyerName, productsList, totalPrice);
     orders.add(order);
     connectionProducts.updateEntity(products);
     connectionOrders.updateEntity(orders);
@@ -64,34 +69,648 @@ public class Controller {
     this.orders = orders;
   }
 
-  public static <T extends Comparable<T>> void insertionSort(ArrayList<T> arr) {
-    for (int i = 1; i < arr.size(); i++) {
-      T key = arr.get(i);
-      int j = i - 1;
-      while (j >= 0 && arr.get(j).compareTo(key) > 0) {
-        arr.set(j + 1, arr.get(j));
-        j -= 1;
+  public void searchProduct(int searchOption, int order, String searchQuery) throws Exception{
+    try{
+      if(searchOption < 1 || searchOption > 4){
+        throw new InvalidSearchOptionException();
       }
-      arr.set(j + 1, key);
+      switch(searchOption){
+        case 1 -> searchProductName(searchOption, order, searchQuery);
+        case 2 -> searchProductPrice(searchOption, order, searchQuery);
+        case 3 -> searchProductCategory(searchOption, order, searchQuery);
+        case 4 -> searchProductTimesPurchased(searchOption, order, searchQuery);
+      }
+    } catch (Exception e){
+      e.printStackTrace();
     }
   }
 
-  public static <T extends Comparable<T>> int binarySearch(T goal, ArrayList<T> arr) {
-    insertionSort(arr);
+  public void searchOrder(int searchOption, int order, String searchQuery) throws Exception{
+    try{
+      if(searchOption < 1 || searchOption > 3){
+        throw new InvalidSearchOptionException();
+      }
+      switch(searchOption){
+        case 1 -> searchOrderBuyerName(searchOption, order, searchQuery);
+        case 2 -> searchOrderTotalPrice(searchOption, order, searchQuery);
+        case 3 -> searchOrderDate(searchOption, order, searchQuery);
+      }
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchProductName(int option, int order, String searchQuery) throws Exception{
+    products.sort(Product::compareToNames);
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchProductPrice(int option, int order, String searchQuery) throws Exception{
+    products.sort(Product::compareToPrices);
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchProductCategory(int option, int order, String searchQuery){
+    products.sort(Product::compareToCategories);
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+
+  }
+
+  private void searchProductTimesPurchased(int option, int order, String searchQuery){
+    products.sort(Product::compareToTimesPurchased);
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchOrderBuyerName(int option, int order, String searchQuery){
+    orders.sort(Order::compareToBuyerName);
+    try{
+      if(searchQuery.contains("::")){
+        searchOrderIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchOrderSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchOrderTotalPrice(int option, int order, String searchQuery){
+    orders.sort(Order::compareToTotalPrice);
+    try{
+      if(searchQuery.contains("::")){
+        searchOrderIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchOrderSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchOrderDate(int option, int order, String searchQuery){
+    orders.sort(Order::compareToPurchaseDate);
+    try{
+      if(searchQuery.contains("::")){
+        searchOrderIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchOrderSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  private void searchProductSingleQuery(int option, int order, String searchQuery) throws Exception{
     int begin = 0;
-    int end = arr.size() - 1;
+    int end = products.size() - 1;
+    Integer timesSoldQuery = 0;
+    Double priceQuery = 0.0;
+    if(option == 2){
+      try{
+        priceQuery = Double.parseDouble(searchQuery);
+      } catch (Exception e){
+        e.printStackTrace();
+        return;
+      }
+    }
+    if(option == 4){
+      try{
+        timesSoldQuery = Integer.parseInt(searchQuery);
+      }catch (Exception e){
+        e.printStackTrace();
+        return;
+      }
+    }
     while(begin <= end){
       int midPoint = (end + begin)/2;
-      T midValue = arr.get(midPoint);
-      if(midValue.compareTo(goal) == 0){
-        return midPoint;
-      }else if(goal.compareTo(midValue) > 0){
+      String midValue;
+      Integer intMidValue;
+      Double doubleMidValue;
+      boolean condition = false;
+      boolean secondCondition = false;
+      switch (option) {
+        case 1 -> {
+          midValue = products.get(midPoint).getName();
+          condition = midValue.compareTo(searchQuery) == 0;
+          secondCondition = searchQuery.compareTo(midValue) > 0;
+        }
+        case 2 -> {
+          doubleMidValue = products.get(midPoint).getPrice();
+          condition = doubleMidValue.compareTo(priceQuery) == 0;
+          secondCondition = priceQuery.compareTo(doubleMidValue) > 0;
+        }
+        case 3 -> {
+          midValue = products.get(midPoint).getCategory().toString();
+          condition = midValue.compareTo(searchQuery) == 0;
+          secondCondition = searchQuery.compareTo(midValue) > 0;
+        }
+        case 4 -> {
+          intMidValue = products.get(midPoint).getTimesPurchased();
+          condition = intMidValue.compareTo(timesSoldQuery) == 0;
+          secondCondition = timesSoldQuery.compareTo(intMidValue) > 0;
+        }
+      }
+      if(condition){
+        boolean stop = false;
+        int startPoint = midPoint;
+        int endPoint = midPoint;
+        while (!stop){
+          switch (option) {
+            case 1 -> {
+              String value = products.get(startPoint).getName();
+              condition = value.compareTo(searchQuery) < 0;
+            }
+            case 2 -> {
+              Double value = products.get(startPoint).getPrice();
+              condition = value.compareTo(priceQuery) < 0;
+            }
+            case 3 -> {
+              String value = products.get(startPoint).getCategory().toString();
+              condition = value.compareTo(searchQuery) < 0;
+            }
+            case 4 -> {
+              Integer value = products.get(startPoint).getTimesPurchased();
+              condition = value.compareTo(timesSoldQuery) < 0;
+            }
+          }
+          if(condition){
+            stop = true;
+            startPoint++;
+          } else if (startPoint == 0) {
+            stop = true;
+          } else {
+            startPoint--;
+          }
+        }
+        stop = false;
+        while (!stop){
+          switch (option) {
+            case 1 -> {
+              String value = products.get(endPoint).getName();
+              condition = value.compareTo(searchQuery) > 0;
+            }
+            case 2 -> {
+              Double value = products.get(endPoint).getPrice();
+              condition = value.compareTo(priceQuery) > 0;
+            }
+            case 3 -> {
+              String value = products.get(endPoint).getCategory().toString();
+              condition = value.compareTo(searchQuery) > 0;
+            }
+            case 4 -> {
+              Integer value = products.get(endPoint).getTimesPurchased();
+              condition = value.compareTo(timesSoldQuery) > 0;
+            }
+          }
+          if(condition){
+            stop = true;
+            endPoint--;
+          } else if (endPoint >= products.size() - 1) {
+            stop = true;
+          } else {
+            endPoint++;
+          }
+        }
+        printProducts(startPoint, endPoint, order);
+        return;
+      }else if(secondCondition){
         begin = midPoint + 1;
       }else{
         end = midPoint - 1;
       }
     }
-    return -1;
+    throw new NoProductsFoundException();
   }
+
+  private void searchProductIntervalQuery(int option, int order, String searchQuery) throws  Exception {
+    String[] interval = searchQuery.split("::");
+    if(interval.length > 2){
+      throw new InvalidSearchQueryException();
+    }
+    String intervalStart = interval[0];
+    String intervalEnd = interval[1];
+    Character characterIntervalStart = 0;
+    Character characterIntervalEnd = 0;
+    Integer integerIntervalStart = 0;
+    Integer integerIntervalEnd = 0;
+    Double doubleIntervalStart = 0.0;
+    Double doubleIntervalEnd = 0.0;
+    boolean condition = false;
+    boolean secondCondition = false;
+    try {
+      switch (option) {
+        case 1, 3 -> {
+          characterIntervalStart = intervalStart.toLowerCase().charAt(0);
+          characterIntervalEnd = intervalEnd.toLowerCase().charAt(0);
+        }
+        case 2 -> {
+          doubleIntervalStart = Double.parseDouble(intervalStart);
+          doubleIntervalEnd = Double.parseDouble(intervalEnd);
+        }
+        case 4 -> {
+          integerIntervalStart = Integer.parseInt(intervalStart);
+          integerIntervalEnd = Integer.parseInt(intervalEnd);
+        }
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return;
+    }
+    int begin = 0;
+    int end = products.size() - 1;
+    while (begin <= end) {
+      int midPoint = (end + begin) / 2;
+      switch (option){
+        case 1 -> {
+          Character midValue = products.get(midPoint).getName().toLowerCase().charAt(0);
+          condition = midValue.compareTo(characterIntervalStart) >= 0 && midValue.compareTo(characterIntervalEnd) <= 0;
+          secondCondition = characterIntervalStart.compareTo(midValue) > 0;
+        }
+        case 2 -> {
+          Double midValue = products.get(midPoint).getPrice();
+          condition = midValue.compareTo(doubleIntervalStart) >= 0 && midValue.compareTo(doubleIntervalEnd) <= 0;
+          secondCondition = doubleIntervalStart.compareTo(midValue) > 0;
+        }
+        case 3 -> {
+          Character midValue = products.get(midPoint).getCategory().toString().toLowerCase().charAt(0);
+          condition = midValue.compareTo(characterIntervalStart) >= 0 && midValue.compareTo(characterIntervalEnd) <= 0;
+          secondCondition = characterIntervalStart.compareTo(midValue) > 0;
+        }
+        case 4 -> {
+          Integer midValue = products.get(midPoint).getTimesPurchased();
+          condition = midValue.compareTo(integerIntervalStart) >= 0 && midValue.compareTo(integerIntervalEnd) <= 0;
+          secondCondition = integerIntervalStart.compareTo(midValue) > 0;
+        }
+      }
+      if(condition) {
+        boolean stop = false;
+        int startPoint = midPoint;
+        int endPoint = midPoint;
+        while (!stop) {
+          switch (option) {
+            case 1 -> {
+              Character value = products.get(startPoint).getName().toLowerCase().charAt(0);
+              condition = value.compareTo(characterIntervalStart) < 0;
+            }
+            case 2 -> {
+              Double value = products.get(startPoint).getPrice();
+              condition = value.compareTo(doubleIntervalStart) < 0;
+            }
+            case 3 -> {
+              Character value = products.get(startPoint).getCategory().toString().toLowerCase().charAt(0);
+              condition = value.compareTo(characterIntervalStart) < 0;
+            }
+            case 4 -> {
+              Integer value = products.get(startPoint).getTimesPurchased();
+              condition = value.compareTo(integerIntervalStart) < 0;
+            }
+          }
+          if (condition) {
+            stop = true;
+            startPoint++;
+          } else if (startPoint == 0) {
+            stop = true;
+          } else {
+            startPoint--;
+          }
+        }
+        stop = false;
+        while (!stop) {
+          switch (option) {
+            case 1 -> {
+              Character value = products.get(endPoint).getName().charAt(0);
+              condition = value.compareTo(characterIntervalEnd) > 0;
+            }
+            case 2 -> {
+              Double value = products.get(endPoint).getPrice();
+              condition = value.compareTo(doubleIntervalEnd) > 0;
+            }
+            case 3 -> {
+              Character value = products.get(endPoint).getCategory().toString().charAt(0);
+              condition = value.compareTo(characterIntervalEnd) > 0;
+            }
+            case 4 -> {
+              Integer value = products.get(endPoint).getTimesPurchased();
+              condition = value.compareTo(integerIntervalEnd) > 0;
+            }
+          }
+          if (condition) {
+            stop = true;
+            endPoint--;
+          } else if (endPoint >= products.size() - 1) {
+            stop = true;
+          } else {
+            endPoint++;
+          }
+        }
+        printProducts(startPoint, endPoint, order);
+        return;
+      }else if(secondCondition){
+        begin = midPoint + 1;
+      }else{
+        end = midPoint - 1;
+      }
+    }
+    throw new NoProductsFoundException();
+  }
+
+  private void searchOrderSingleQuery(int option, int order, String searchQuery) throws Exception{
+    int begin = 0;
+    int end = orders.size() - 1;
+    Double doubleQuery = 0.0;
+    Date dateQuery = new Date(System.currentTimeMillis());
+    if(option == 2){
+      try{
+        doubleQuery = Double.parseDouble(searchQuery);
+      } catch (Exception e){
+        e.printStackTrace();
+        return;
+      }
+    }
+    if(option == 3){
+      try{
+        dateQuery = new SimpleDateFormat("dd/MM/yyyy").parse(searchQuery);
+      }catch (Exception e){
+        e.printStackTrace();
+        return;
+      }
+    }
+    while(begin <= end){
+      int midPoint = (end + begin)/2;
+      String midValue;
+      Double doubleMidValue;
+      Date dateMidValue;
+      boolean condition = false;
+      boolean secondCondition = false;
+      switch (option) {
+        case 1 -> {
+          midValue = orders.get(midPoint).getBuyerName();
+          condition = midValue.compareTo(searchQuery) == 0;
+          secondCondition = searchQuery.compareTo(midValue) > 0;
+        }
+        case 2 -> {
+          doubleMidValue = orders.get(midPoint).getTotalPrice();
+          condition = doubleMidValue.compareTo(doubleQuery) == 0;
+          secondCondition = doubleQuery.compareTo(doubleMidValue) > 0;
+        }
+        case 3 -> {
+          dateMidValue = orders.get(midPoint).getPurchaseDate();
+          condition = dateMidValue.compareTo(dateQuery) == 0;
+          secondCondition = dateQuery.compareTo(dateMidValue) > 0;
+        }
+      }
+      if(condition){
+        boolean stop = false;
+        int startPoint = midPoint;
+        int endPoint = midPoint;
+        while (!stop){
+          switch (option) {
+            case 1 -> {
+              String value = orders.get(startPoint).getBuyerName();
+              condition = value.compareTo(searchQuery) < 0;
+            }
+            case 2 -> {
+              Double value = orders.get(startPoint).getTotalPrice();
+              condition = value.compareTo(doubleQuery) < 0;
+            }
+            case 3 -> {
+              Date value = orders.get(startPoint).getPurchaseDate();
+              condition = value.compareTo(dateQuery) < 0;
+            }
+          }
+          if(condition){
+            stop = true;
+            startPoint++;
+          } else if (startPoint == 0) {
+            stop = true;
+          } else {
+            startPoint--;
+          }
+        }
+        stop = false;
+        while (!stop){
+          switch (option) {
+            case 1 -> {
+              String value = orders.get(endPoint).getBuyerName();
+              condition = value.compareTo(searchQuery) > 0;
+            }
+            case 2 -> {
+              Double value = orders.get(endPoint).getTotalPrice();
+              condition = value.compareTo(doubleQuery) > 0;
+            }
+            case 3 -> {
+              Date value = orders.get(endPoint).getPurchaseDate();
+              condition = value.compareTo(dateQuery) > 0;
+            }
+          }
+          if(condition){
+            stop = true;
+            endPoint--;
+          } else if (endPoint >= orders.size() - 1) {
+            stop = true;
+          } else {
+            endPoint++;
+          }
+        }
+        printOrders(startPoint, endPoint, order);
+        return;
+      }else if(secondCondition){
+        begin = midPoint + 1;
+      }else{
+        end = midPoint - 1;
+      }
+    }
+    throw new NoOrdersFoundException();
+  }
+
+  private void searchOrderIntervalQuery(int option, int order, String searchQuery) throws  Exception {
+    String[] interval = searchQuery.split("::");
+    if(interval.length > 2){
+      throw new InvalidSearchQueryException();
+    }
+    String intervalStart = interval[0];
+    String intervalEnd = interval[1];
+    Character characterIntervalStart = 0;
+    Character characterIntervalEnd = 0;
+    Double doubleIntervalStart = 0.0;
+    Double doubleIntervalEnd = 0.0;
+    Date dateIntervalStart = new Date(System.currentTimeMillis());
+    Date dateIntervalEnd = new Date(System.currentTimeMillis());
+    boolean condition = false;
+    boolean secondCondition = false;
+    try {
+      switch (option) {
+        case 1 -> {
+          characterIntervalStart = intervalStart.toLowerCase().charAt(0);
+          characterIntervalEnd = intervalEnd.toLowerCase().charAt(0);
+        }
+        case 2 -> {
+          doubleIntervalStart = Double.parseDouble(intervalStart);
+          doubleIntervalEnd = Double.parseDouble(intervalEnd);
+        }
+        case 3 -> {
+          dateIntervalStart = new SimpleDateFormat("dd/MM/yyyy").parse(intervalStart);
+          dateIntervalEnd = new SimpleDateFormat("dd/MM/yyyy").parse(intervalEnd);
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      return;
+    }
+    int begin = 0;
+    int end = orders.size() - 1;
+    while (begin <= end) {
+      int midPoint = (end + begin) / 2;
+      switch (option){
+        case 1 -> {
+          Character midValue = orders.get(midPoint).getBuyerName().toLowerCase().charAt(0);
+          condition = midValue.compareTo(characterIntervalStart) >= 0 && midValue.compareTo(characterIntervalEnd) <= 0;
+          secondCondition = characterIntervalStart.compareTo(midValue) > 0;
+        }
+        case 2 -> {
+          Double midValue = orders.get(midPoint).getTotalPrice();
+          condition = midValue.compareTo(doubleIntervalStart) >= 0 && midValue.compareTo(doubleIntervalEnd) <= 0;
+          secondCondition = doubleIntervalStart.compareTo(midValue) > 0;
+        }
+        case 3 -> {
+          Date midValue = orders.get(midPoint).getPurchaseDate();
+          condition = midValue.compareTo(dateIntervalStart) >= 0 && midValue.compareTo(dateIntervalEnd) <= 0;
+          secondCondition = dateIntervalStart.compareTo(midValue) > 0;
+        }
+      }
+      if(condition) {
+        boolean stop = false;
+        int startPoint = midPoint;
+        int endPoint = midPoint;
+        while (!stop) {
+          switch (option) {
+            case 1 -> {
+              Character value = orders.get(startPoint).getBuyerName().toLowerCase().charAt(0);
+              condition = value.compareTo(characterIntervalStart) < 0;
+            }
+            case 2 -> {
+              Double value = orders.get(startPoint).getTotalPrice();
+              condition = value.compareTo(doubleIntervalStart) < 0;
+            }
+            case 3 -> {
+              Date value = orders.get(startPoint).getPurchaseDate();
+              condition = value.compareTo(dateIntervalStart) < 0;
+            }
+          }
+          if (condition) {
+            stop = true;
+            startPoint++;
+          } else if (startPoint == 0) {
+            stop = true;
+          } else {
+            startPoint--;
+          }
+        }
+        stop = false;
+        while (!stop) {
+          switch (option) {
+            case 1 -> {
+              Character value = orders.get(endPoint).getBuyerName().toLowerCase().charAt(0);
+              condition = value.compareTo(characterIntervalEnd) > 0;
+            }
+            case 2 -> {
+              Double value = orders.get(endPoint).getTotalPrice();
+              condition = value.compareTo(doubleIntervalEnd) > 0;
+            }
+            case 3 -> {
+              Date value = orders.get(endPoint).getPurchaseDate();
+              condition = value.compareTo(dateIntervalStart) > 0;
+            }
+          }
+          if (condition) {
+            stop = true;
+            endPoint--;
+          } else if (endPoint >= orders.size() - 1) {
+            stop = true;
+          } else {
+            endPoint++;
+          }
+        }
+        printOrders(startPoint, endPoint, order);
+        return;
+      }else if(secondCondition){
+        begin = midPoint + 1;
+      }else{
+        end = midPoint - 1;
+      }
+    }
+    throw new NoOrdersFoundException();
+  }
+
+
+
+  private void printProducts(int startPoint, int endPoint, int order) {
+    if(order == 1){
+      for(int i = startPoint; i <= endPoint; i++){
+        Product product = products.get(i);
+        System.out.println("Name: " + product.getName() +", Description: " + product.getDescription() + ", Price: " + product.getPrice() + ", Quantity: " + product.getAvailableQuantity() + ", Category: " + product.getCategory().toString() + ", Times sold: " + product.getTimesPurchased());
+      }
+    } else {
+      for(int i = endPoint; i >= startPoint; i--){
+        Product product = products.get(i);
+        System.out.println("Name: " + product.getName() +", Description: " + product.getDescription() + ", Price: " + product.getPrice() + ", Quantity: " + product.getAvailableQuantity() + ", Category: " + product.getCategory().toString() + ", Times sold: " + product.getTimesPurchased());
+      }
+    }
+
+  }
+
+  private void printOrders(int startPoint, int endPoint, int order){
+    if(order == 1){
+      for(int i = startPoint; i <= endPoint; i++){
+        Order currentOrder = orders.get(i);
+        Calendar date = Calendar.getInstance();
+        date.setTime(currentOrder.getPurchaseDate());
+        System.out.println("Buyer's name: " + currentOrder.getBuyerName() + ", Total price:" + currentOrder.getTotalPrice() + ", Date: " + date.get(Calendar.DAY_OF_MONTH) + "/" + (date.get(Calendar.MONTH)+1) + "/" + date.get(Calendar.YEAR) );
+      }
+    } else {
+      for(int i = endPoint; i >= startPoint; i--){
+        Order currentOrder = orders.get(i);
+        Calendar date = Calendar.getInstance();
+        date.setTime(currentOrder.getPurchaseDate());
+        System.out.println("Buyer's name: " + currentOrder.getBuyerName() + ", Total price:" + currentOrder.getTotalPrice() + ", Date: " + date.get(Calendar.DAY_OF_MONTH) + "/" + (date.get(Calendar.MONTH)+1) + "/" + date.get(Calendar.YEAR) );
+      }
+    }
+  }
+
+
+
   
 }

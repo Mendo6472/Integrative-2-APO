@@ -5,6 +5,11 @@ import java.util.ArrayList;
 
 public class Controller {
 
+  public Controller(){
+    products = new ArrayList<>();
+    orders = new ArrayList<>();
+  }
+
   private ArrayList<Product> products;
   private ArrayList<Order> orders;
 
@@ -32,7 +37,7 @@ public class Controller {
       switch(searchOption){
         case 1 -> searchProductName(searchOption, order, searchQuery);
         case 2 -> searchProductPrice(searchOption, order, searchQuery);
-        case 3 -> searchProductCategory(order, searchQuery);
+        case 3 -> searchProductCategory(searchOption, order, searchQuery);
         case 4 -> searchProductTimesPurchased(order, searchQuery);
       }
     } catch (Exception e){
@@ -75,7 +80,17 @@ public class Controller {
     }
   }
 
-  private void searchProductCategory(int order, String searchQuery){
+  private void searchProductCategory(int option, int order, String searchQuery){
+    products.sort(Product::compareToCategories);
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
 
   }
 
@@ -223,8 +238,8 @@ public class Controller {
     try {
       switch (option) {
         case 1, 3 -> {
-          characterIntervalStart = intervalStart.charAt(0);
-          characterIntervalEnd = intervalEnd.charAt(0);
+          characterIntervalStart = intervalStart.toLowerCase().charAt(0);
+          characterIntervalEnd = intervalEnd.toLowerCase().charAt(0);
         }
         case 2 -> {
           doubleIntervalStart = Double.parseDouble(intervalStart);
@@ -246,7 +261,7 @@ public class Controller {
       int midPoint = (end + begin) / 2;
       switch (option){
         case 1 -> {
-          Character midValue = products.get(midPoint).getName().charAt(0);
+          Character midValue = products.get(midPoint).getName().toLowerCase().charAt(0);
           condition = midValue.compareTo(characterIntervalStart) >= 0 && midValue.compareTo(characterIntervalEnd) <= 0;
           secondCondition = characterIntervalStart.compareTo(midValue) > 0;
         }
@@ -256,7 +271,7 @@ public class Controller {
           secondCondition = doubleIntervalStart.compareTo(midValue) > 0;
         }
         case 3 -> {
-          Character midValue = products.get(midPoint).getCategory().toString().charAt(0);
+          Character midValue = products.get(midPoint).getCategory().toString().toLowerCase().charAt(0);
           condition = midValue.compareTo(characterIntervalStart) >= 0 && midValue.compareTo(characterIntervalEnd) <= 0;
           secondCondition = characterIntervalStart.compareTo(midValue) > 0;
         }
@@ -273,7 +288,7 @@ public class Controller {
         while (!stop) {
           switch (option) {
             case 1 -> {
-              Character value = products.get(startPoint).getName().charAt(0);
+              Character value = products.get(startPoint).getName().toLowerCase().charAt(0);
               condition = value.compareTo(characterIntervalStart) < 0;
             }
             case 2 -> {
@@ -281,7 +296,7 @@ public class Controller {
               condition = value.compareTo(doubleIntervalStart) < 0;
             }
             case 3 -> {
-              Character value = products.get(startPoint).getCategory().toString().charAt(0);
+              Character value = products.get(startPoint).getCategory().toString().toLowerCase().charAt(0);
               condition = value.compareTo(characterIntervalStart) < 0;
             }
             case 4 -> {

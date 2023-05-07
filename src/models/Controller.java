@@ -1,6 +1,7 @@
 package models;
 import exceptions.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import com.google.gson.reflect.TypeToken;
@@ -34,8 +35,8 @@ public class Controller {
     connectionProducts.updateEntity(products);
   }
 
-  public void addOrder(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice, Date purchaseDate) {
-    Order order = new Order(buyerName, productsList, totalPrice, purchaseDate);
+  public void addOrder(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice) throws ParseException {
+    Order order = new Order(buyerName, productsList, totalPrice);
     orders.add(order);
     connectionProducts.updateEntity(products);
     connectionOrders.updateEntity(orders);
@@ -166,7 +167,16 @@ public class Controller {
   }
 
   private void searchOrderTotalPrice(int option, int order, String searchQuery){
-
+    orders.sort(Order::compareToTotalPrice);
+    try{
+      if(searchQuery.contains("::")){
+        searchOrderIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchOrderSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
   }
 
   private void searchOrderDate(int option, int order, String searchQuery){

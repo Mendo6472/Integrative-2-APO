@@ -13,7 +13,10 @@ public class Order {
   private double totalPrice;
   private Date purchaseDate;
 
-  public Order() throws ParseException {
+  public Order(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice) throws ParseException {
+    this.buyerName = buyerName;
+    this.productsList = productsList;
+    this.totalPrice = totalPrice;
     LocalDate currentDate = LocalDate.now();
     int currentDay = currentDate.getDayOfMonth();
     int currentMonth = currentDate.getMonthValue();

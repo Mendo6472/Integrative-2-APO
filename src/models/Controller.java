@@ -5,11 +5,6 @@ import java.util.ArrayList;
 
 public class Controller {
 
-  public Controller(){
-    products = new ArrayList<>();
-    orders = new ArrayList<>();
-  }
-
   private ArrayList<Product> products;
   private ArrayList<Order> orders;
 
@@ -38,7 +33,7 @@ public class Controller {
         case 1 -> searchProductName(searchOption, order, searchQuery);
         case 2 -> searchProductPrice(searchOption, order, searchQuery);
         case 3 -> searchProductCategory(searchOption, order, searchQuery);
-        case 4 -> searchProductTimesPurchased(order, searchQuery);
+        case 4 -> searchProductTimesPurchased(searchOption, order, searchQuery);
       }
     } catch (Exception e){
       e.printStackTrace();
@@ -94,8 +89,17 @@ public class Controller {
 
   }
 
-  private void searchProductTimesPurchased(int order, String searchQuery){
-
+  private void searchProductTimesPurchased(int option, int order, String searchQuery){
+    products.sort(Product::compareToTimesPurchased);
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
   }
 
   private void searchProductSingleQuery(int option, int order, String searchQuery) throws Exception{

@@ -1,4 +1,6 @@
 package models;
+import exceptions.*;
+
 import java.util.ArrayList;
 
 public class Controller {
@@ -23,19 +25,20 @@ public class Controller {
   }
 
   public void searchProduct(int searchOption, int order, String searchQuery) throws Exception{
-    if(searchOption < 1 || searchOption > 4){
-      //throw new invalidSearchOptionException
-      return;
-    }
-    switch(searchOption){
-      case 1 -> searchProductName(searchOption, order, searchQuery);
-      case 2 -> searchProductPrice(searchOption, order, searchQuery);
-      case 3 -> searchProductCategory(order, searchQuery);
-      case 4 -> searchProductTimesPurchased(order, searchQuery);
+    try{
+      if(searchOption < 1 || searchOption > 4){
+        throw new InvalidSearchOptionException();
+      }
+      switch(searchOption){
+        case 1 -> searchProductName(searchOption, order, searchQuery);
+        case 2 -> searchProductPrice(searchOption, order, searchQuery);
+        case 3 -> searchProductCategory(order, searchQuery);
+        case 4 -> searchProductTimesPurchased(order, searchQuery);
+      }
+    } catch (Exception e){
+      e.printStackTrace();
     }
   }
-
-
 
 
   private void searchOrderSingleQuery(){
@@ -48,11 +51,11 @@ public class Controller {
 
   private void searchProductName(int option, int order, String searchQuery) throws Exception{
     products.sort(Product::compareToNames);
-    if(searchQuery.contains("::")){
-      searchProductIntervalQuery(option, order, searchQuery);
-      return;
-    }
-    try {
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
       searchProductSingleQuery(option, order, searchQuery);
     } catch (Exception e){
       e.printStackTrace();
@@ -61,11 +64,11 @@ public class Controller {
 
   private void searchProductPrice(int option, int order, String searchQuery) throws Exception{
     products.sort(Product::compareToPrices);
-    if(searchQuery.contains("::")){
-      searchProductIntervalQuery(option, order, searchQuery);
-      return;
-    }
-    try {
+    try{
+      if(searchQuery.contains("::")){
+        searchProductIntervalQuery(option, order, searchQuery);
+        return;
+      }
       searchProductSingleQuery(option, order, searchQuery);
     } catch (Exception e){
       e.printStackTrace();
@@ -199,14 +202,13 @@ public class Controller {
         end = midPoint - 1;
       }
     }
-    //throw new NoProductsFoundException
+    throw new NoProductsFoundException();
   }
 
   private void searchProductIntervalQuery(int option, int order, String searchQuery) throws  Exception {
     String[] interval = searchQuery.split("::");
     if(interval.length > 2){
-      //throw new invalidSearchQueryException
-      return;
+      throw new InvalidSearchQueryException();
     }
     String intervalStart = interval[0];
     String intervalEnd = interval[1];
@@ -238,7 +240,6 @@ public class Controller {
       e.printStackTrace();
       return;
     }
-
     int begin = 0;
     int end = products.size() - 1;
     while (begin <= end) {
@@ -334,7 +335,7 @@ public class Controller {
         end = midPoint - 1;
       }
     }
-    //throw new NoProductsFoundException
+    throw new NoProductsFoundException();
   }
 
   private void printProducts(int startPoint, int endPoint, int order) {

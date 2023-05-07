@@ -29,7 +29,7 @@ public class Controller {
     }
     switch(searchOption){
       case 1 -> searchProductName(searchOption, order, searchQuery);
-      case 2 -> searchProductPrice(order, searchQuery);
+      case 2 -> searchProductPrice(searchOption, order, searchQuery);
       case 3 -> searchProductCategory(order, searchQuery);
       case 4 -> searchProductTimesPurchased(order, searchQuery);
     }
@@ -59,8 +59,17 @@ public class Controller {
     }
   }
 
-  private void searchProductPrice(int order, String searchQuery){
-
+  private void searchProductPrice(int option, int order, String searchQuery) throws Exception{
+    products.sort(Product::compareToPrices);
+    if(searchQuery.contains("::")){
+      searchProductIntervalQuery(option, order, searchQuery);
+      return;
+    }
+    try {
+      searchProductSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
   }
 
   private void searchProductCategory(int order, String searchQuery){
@@ -182,7 +191,8 @@ public class Controller {
             endPoint++;
           }
         }
-        printProducts(startPoint, endPoint);
+        printProducts(startPoint, endPoint, order);
+        return;
       }else if(secondCondition){
         begin = midPoint + 1;
       }else{
@@ -316,7 +326,7 @@ public class Controller {
             endPoint++;
           }
         }
-        printProducts(startPoint, endPoint);
+        printProducts(startPoint, endPoint, order);
         return;
       }else if(secondCondition){
         begin = midPoint + 1;
@@ -327,11 +337,19 @@ public class Controller {
     //throw new NoProductsFoundException
   }
 
-  private void printProducts(int startPoint, int endPoint) {
-    for(int i = startPoint; i <= endPoint; i++){
-      Product product = products.get(i);
-      System.out.println("Name: " + product.getName() +", Description: " + product.getDescription() + ", Price: " + product.getPrice() + ", Quantity: " + product.getAvailableQuantity() + ", Category: " + product.getCategory().toString() + ", Times sold: " + product.getTimesPurchased());
+  private void printProducts(int startPoint, int endPoint, int order) {
+    if(order == 1){
+      for(int i = startPoint; i <= endPoint; i++){
+        Product product = products.get(i);
+        System.out.println("Name: " + product.getName() +", Description: " + product.getDescription() + ", Price: " + product.getPrice() + ", Quantity: " + product.getAvailableQuantity() + ", Category: " + product.getCategory().toString() + ", Times sold: " + product.getTimesPurchased());
+      }
+    } else {
+      for(int i = endPoint; i >= startPoint; i--){
+        Product product = products.get(i);
+        System.out.println("Name: " + product.getName() +", Description: " + product.getDescription() + ", Price: " + product.getPrice() + ", Quantity: " + product.getAvailableQuantity() + ", Category: " + product.getCategory().toString() + ", Times sold: " + product.getTimesPurchased());
+      }
     }
+
   }
 
 

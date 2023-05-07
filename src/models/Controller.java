@@ -48,6 +48,18 @@ public class Controller {
     return itWasFound;
   }
 
+  public void increaseInventoryProduct(String name, int amount){
+    Product product;
+    int productExist = searchProduct(name);
+    if (productExist != -1) {
+      product = products.get(productExist);
+      product.setAvailableQuantity(product.getAvailableQuantity()+amount);
+      connectionProducts.updateEntity(products);
+    }else{
+      System.out.println("This products does not exist");
+    }
+  }
+
   public ArrayList<Product> getProducts() {
     return products;
   }

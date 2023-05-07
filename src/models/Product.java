@@ -1,5 +1,9 @@
 package models;
 
+import exceptions.WrongCategoryException;
+import exceptions.WrongPriceException;
+import exceptions.WrongQuantityException;
+
 public class Product {
 
   private String name;
@@ -9,12 +13,18 @@ public class Product {
   private Category category; 
   private int timesPurchased;
 
-  public Product(String name, String description, double price, int availableQuantity, Category category) {
+  public Product(String name, String description, double price, int availableQuantity, String category) throws Exception{
     this.name = name;
     this.description = description;
+    if(price <= 0) throw new WrongPriceException();
     this.price = price;
+    if(availableQuantity<0) throw new WrongQuantityException();
     this.availableQuantity = availableQuantity;
-    this.category = category;
+    try {
+      this.category = Category.valueOf(category.toUpperCase());
+    } catch (IllegalArgumentException e){
+      throw new WrongCategoryException();
+    }
   }
   
   public int compareToNames(Product otherProduct){

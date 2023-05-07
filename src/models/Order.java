@@ -10,8 +10,11 @@ public class Order {
   private double totalPrice;
   private Date purchaseDate;
 
-  public Order() {
-
+  public Order(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice, Date purchaseDate) {
+    this.buyerName = buyerName;
+    this.productsList = productsList;
+    this.totalPrice = totalPrice;
+    this.purchaseDate = purchaseDate;
   }
   
   public int compareToBuyerName(Order OtherOrder) {

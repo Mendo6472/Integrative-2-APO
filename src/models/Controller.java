@@ -180,7 +180,16 @@ public class Controller {
   }
 
   private void searchOrderDate(int option, int order, String searchQuery){
-
+    orders.sort(Order::compareToPurchaseDate);
+    try{
+      if(searchQuery.contains("::")){
+        searchOrderIntervalQuery(option, order, searchQuery);
+        return;
+      }
+      searchOrderSingleQuery(option, order, searchQuery);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
   }
 
   private void searchProductSingleQuery(int option, int order, String searchQuery) throws Exception{

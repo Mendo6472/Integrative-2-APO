@@ -49,6 +49,7 @@ public class Main {
             """
                     1. Add product
                     2. Add order
+                    3. Increase inventory product
                     0. Exit"""
                         );
         option =  validateIntegerInput();
@@ -65,6 +66,7 @@ public class Main {
                 uiAddOrder();
                 break;
             case 3:
+                uiIncreaseInventoryProduct();
                 break;
             case 4:
                 break;
@@ -132,6 +134,14 @@ public class Main {
 
     }
 
+    public void uiIncreaseInventoryProduct(){
+        System.out.print("Name: ");
+        String name = reader.next();
+        System.out.print("Amount: ");
+        int amount = reader.nextInt();
+        if(amount > 0) controller.increaseInventoryProduct(name, amount);
+        else System.out.println("The increase must be positive");
+    }
 
     public Scanner getReader(){
         return reader;

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Scanner;
 
 import datastructure.Pair;
+import exceptions.ProductDoesNotExistException;
 import models.Category;
 
 import models.Controller;
@@ -98,7 +99,7 @@ public class Main {
         controller.addProduct(name, description, price, availableQuantity, categoryString);
     }
 
-    public void uiAddOrder() throws ParseException {
+    public void uiAddOrder() throws Exception {
         System.out.print("Buyer name: ");
         String buyerName = reader.next();
 
@@ -135,12 +136,17 @@ public class Main {
     }
 
     public void uiIncreaseInventoryProduct(){
-        System.out.print("Name: ");
-        String name = reader.next();
-        System.out.print("Amount: ");
-        int amount = reader.nextInt();
-        if(amount > 0) controller.increaseInventoryProduct(name, amount);
-        else System.out.println("The increase must be positive");
+        try{
+            System.out.print("Name: ");
+            String name = reader.next();
+            System.out.print("Amount: ");
+            int amount = reader.nextInt();
+            if(amount > 0) controller.addInventory(name, amount);
+            else System.out.println("The increase must be positive");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     public Scanner getReader(){

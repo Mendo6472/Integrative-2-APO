@@ -1,7 +1,6 @@
 package models;
 import exceptions.*;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import com.google.gson.reflect.TypeToken;
@@ -35,7 +34,14 @@ public class Controller {
     connectionProducts.updateEntity(products);
   }
 
-  public void addOrder(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice) throws ParseException {
+  public void addOrder(String buyerName, ArrayList<Pair<String,Integer>> productsList, double totalPrice) throws Exception {
+    for(Pair<String, Integer> product : productsList){
+      int pos = searchProduct(product.getLeft());
+      if(pos == -1) throw new ProductDoesNotExistException();
+      if(products.get(pos).getAvailableQuantity() < product.getRight()) throw new NotEnoughStockException();
+      products.get(pos).setAvailableQuantity(products.get(pos).getAvailableQuantity()-product.getRight());
+      products.get(pos).setTimesPurchased(products.get(pos).getTimesPurchased() + product.getRight());
+    }
     Order order = new Order(buyerName, productsList, totalPrice);
     orders.add(order);
     connectionProducts.updateEntity(products);
@@ -53,7 +59,8 @@ public class Controller {
     return itWasFound;
   }
 
-  public void increaseInventoryProduct(String name, int amount){
+  public void addInventory(String name, int amount) throws ProductDoesNotExistException, WrongQuantityException {
+    if(amount <= 0) throw new WrongQuantityException();
     Product product;
     int productExist = searchProduct(name);
     if (productExist != -1) {
@@ -61,7 +68,7 @@ public class Controller {
       product.setAvailableQuantity(product.getAvailableQuantity()+amount);
       connectionProducts.updateEntity(products);
     }else{
-      System.out.println("This products does not exist");
+      throw new ProductDoesNotExistException();
     }
   }
 

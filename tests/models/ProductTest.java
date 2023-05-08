@@ -1,4 +1,5 @@
-//You need to put "products.json" found in "tests/data/productTest" in "src/data"
+//You need to put "products.json" found in "tests/data/productTest" in "src/data"
+//Everytime you run this test you need to do that
 package models;
 
 import exceptions.*;
@@ -105,7 +106,8 @@ class ProductTest {
     void searchProductAddedByPersistenceTest() throws Exception {
         setupStage3();
         controller.searchProduct(1,1,"Laptop");
-        assertEquals("Name: Laptop, Description: Portable Computer, Price: 500.0, Quantity: 20, Category: ELECTRONIC, Times sold: 0", outputStreamCaptor.toString().trim());
+        //Quantity = 30 because another tests adds stock to this
+        assertEquals("Name: Laptop, Description: Portable Computer, Price: 500.0, Quantity: 30, Category: ELECTRONIC, Times sold: 0", outputStreamCaptor.toString().trim());
     }
 
     @Test
@@ -134,7 +136,8 @@ class ProductTest {
             controller.addInventory(productName, stockToAdd);
         });
         int laptop = controller.searchProduct("Laptop");
-        assertEquals(controller.getProducts().get(laptop).getAvailableQuantity(), 20);
+        //Is 30 because another tests adds 10 of stock to this product
+        assertEquals(controller.getProducts().get(laptop).getAvailableQuantity(), 30);
     }
 
     @Test

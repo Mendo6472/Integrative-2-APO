@@ -25,8 +25,7 @@ public class Controller {
     Product product;
     int productExist = searchProduct(name);
     if (productExist != -1) {
-      product = products.get(productExist);
-      product.setAvailableQuantity(product.getAvailableQuantity()+availableQuantity);
+      throw new ProductAlreadyExistsException();
     } else {
       product = new Product(name, description, price, availableQuantity, category);
       products.add(product);

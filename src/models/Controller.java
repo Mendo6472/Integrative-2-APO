@@ -556,20 +556,27 @@ public class Controller {
     Date dateIntervalEnd = new Date(System.currentTimeMillis());
     boolean condition = false;
     boolean secondCondition = false;
+    boolean wrongIntervalCondition = false;
     try {
       switch (option) {
         case 1 -> {
           characterIntervalStart = intervalStart.toLowerCase().charAt(0);
           characterIntervalEnd = intervalEnd.toLowerCase().charAt(0);
+          wrongIntervalCondition = characterIntervalStart.compareTo(characterIntervalEnd) > 0;
         }
         case 2 -> {
           doubleIntervalStart = Double.parseDouble(intervalStart);
           doubleIntervalEnd = Double.parseDouble(intervalEnd);
+          wrongIntervalCondition = doubleIntervalStart.compareTo(doubleIntervalEnd) > 0;
         }
         case 3 -> {
           dateIntervalStart = new SimpleDateFormat("dd/MM/yyyy").parse(intervalStart);
           dateIntervalEnd = new SimpleDateFormat("dd/MM/yyyy").parse(intervalEnd);
+          wrongIntervalCondition = dateIntervalStart.compareTo(dateIntervalEnd) > 0;
         }
+      }
+      if(wrongIntervalCondition){
+        throw new InvalidSearchQueryException();
       }
     } catch (Exception e) {
       throw new InvalidSearchQueryException();

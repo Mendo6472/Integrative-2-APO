@@ -89,126 +89,90 @@ public class Controller {
   }
 
   public void searchProduct(int searchOption, int order, String searchQuery) throws Exception{
-    try{
-      if(searchOption < 1 || searchOption > 4){
-        throw new InvalidSearchOptionException();
-      }
-      switch(searchOption){
-        case 1 -> searchProductName(searchOption, order, searchQuery);
-        case 2 -> searchProductPrice(searchOption, order, searchQuery);
-        case 3 -> searchProductCategory(searchOption, order, searchQuery);
-        case 4 -> searchProductTimesPurchased(searchOption, order, searchQuery);
-      }
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchOption < 1 || searchOption > 4){
+      throw new InvalidSearchOptionException();
+    }
+    switch(searchOption){
+      case 1 -> searchProductName(searchOption, order, searchQuery);
+      case 2 -> searchProductPrice(searchOption, order, searchQuery);
+      case 3 -> searchProductCategory(searchOption, order, searchQuery);
+      case 4 -> searchProductTimesPurchased(searchOption, order, searchQuery);
     }
   }
 
   public void searchOrder(int searchOption, int order, String searchQuery) throws Exception{
-    try{
-      if(searchOption < 1 || searchOption > 3){
-        throw new InvalidSearchOptionException();
-      }
-      switch(searchOption){
-        case 1 -> searchOrderBuyerName(searchOption, order, searchQuery);
-        case 2 -> searchOrderTotalPrice(searchOption, order, searchQuery);
-        case 3 -> searchOrderDate(searchOption, order, searchQuery);
-      }
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchOption < 1 || searchOption > 3){
+      throw new InvalidSearchOptionException();
+    }
+    switch(searchOption){
+      case 1 -> searchOrderBuyerName(searchOption, order, searchQuery);
+      case 2 -> searchOrderTotalPrice(searchOption, order, searchQuery);
+      case 3 -> searchOrderDate(searchOption, order, searchQuery);
     }
   }
 
   private void searchProductName(int option, int order, String searchQuery) throws Exception{
     products.sort(Product::compareToNames);
-    try{
-      if(searchQuery.contains("::")){
-        searchProductIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchProductSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchProductIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchProductSingleQuery(option, order, searchQuery);
   }
 
   private void searchProductPrice(int option, int order, String searchQuery) throws Exception{
     products.sort(Product::compareToPrices);
-    try{
-      if(searchQuery.contains("::")){
-        searchProductIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchProductSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchProductIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchProductSingleQuery(option, order, searchQuery);
   }
 
-  private void searchProductCategory(int option, int order, String searchQuery){
+  private void searchProductCategory(int option, int order, String searchQuery) throws Exception {
     products.sort(Product::compareToCategories);
-    try{
-      if(searchQuery.contains("::")){
-        searchProductIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchProductSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchProductIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchProductSingleQuery(option, order, searchQuery);
 
   }
 
-  private void searchProductTimesPurchased(int option, int order, String searchQuery){
+  private void searchProductTimesPurchased(int option, int order, String searchQuery) throws Exception {
     products.sort(Product::compareToTimesPurchased);
-    try{
-      if(searchQuery.contains("::")){
-        searchProductIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchProductSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchProductIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchProductSingleQuery(option, order, searchQuery);
   }
 
-  private void searchOrderBuyerName(int option, int order, String searchQuery){
+  private void searchOrderBuyerName(int option, int order, String searchQuery) throws Exception {
     orders.sort(Order::compareToBuyerName);
-    try{
-      if(searchQuery.contains("::")){
-        searchOrderIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchOrderSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchOrderIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchOrderSingleQuery(option, order, searchQuery);
   }
 
-  private void searchOrderTotalPrice(int option, int order, String searchQuery){
+  private void searchOrderTotalPrice(int option, int order, String searchQuery) throws Exception {
     orders.sort(Order::compareToTotalPrice);
-    try{
-      if(searchQuery.contains("::")){
-        searchOrderIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchOrderSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchOrderIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchOrderSingleQuery(option, order, searchQuery);
   }
 
-  private void searchOrderDate(int option, int order, String searchQuery){
+  private void searchOrderDate(int option, int order, String searchQuery) throws Exception {
     orders.sort(Order::compareToPurchaseDate);
-    try{
-      if(searchQuery.contains("::")){
-        searchOrderIntervalQuery(option, order, searchQuery);
-        return;
-      }
-      searchOrderSingleQuery(option, order, searchQuery);
-    } catch (Exception e){
-      e.printStackTrace();
+    if(searchQuery.contains("::")){
+      searchOrderIntervalQuery(option, order, searchQuery);
+      return;
     }
+    searchOrderSingleQuery(option, order, searchQuery);
   }
 
   private void searchProductSingleQuery(int option, int order, String searchQuery) throws Exception{
@@ -220,16 +184,21 @@ public class Controller {
       try{
         priceQuery = Double.parseDouble(searchQuery);
       } catch (Exception e){
-        e.printStackTrace();
-        return;
+        throw new InvalidSearchQueryException();
       }
     }
     if(option == 4){
       try{
         timesSoldQuery = Integer.parseInt(searchQuery);
       }catch (Exception e){
-        e.printStackTrace();
-        return;
+        throw new InvalidSearchQueryException();
+      }
+    }
+    if(option == 3){
+      try{
+        Category category = Category.valueOf(searchQuery);
+      } catch (Exception e){
+        throw new InvalidSearchQueryException();
       }
     }
     while(begin <= end){
@@ -365,8 +334,7 @@ public class Controller {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
-      return;
+      throw new InvalidSearchQueryException();
     }
     int begin = 0;
     int end = products.size() - 1;
@@ -430,7 +398,7 @@ public class Controller {
         while (!stop) {
           switch (option) {
             case 1 -> {
-              Character value = products.get(endPoint).getName().charAt(0);
+              Character value = products.get(endPoint).getName().toLowerCase().charAt(0);
               condition = value.compareTo(characterIntervalEnd) > 0;
             }
             case 2 -> {
@@ -438,7 +406,7 @@ public class Controller {
               condition = value.compareTo(doubleIntervalEnd) > 0;
             }
             case 3 -> {
-              Character value = products.get(endPoint).getCategory().toString().charAt(0);
+              Character value = products.get(endPoint).getCategory().toString().toLowerCase().charAt(0);
               condition = value.compareTo(characterIntervalEnd) > 0;
             }
             case 4 -> {
@@ -475,16 +443,14 @@ public class Controller {
       try{
         doubleQuery = Double.parseDouble(searchQuery);
       } catch (Exception e){
-        e.printStackTrace();
-        return;
+        throw new InvalidSearchQueryException();
       }
     }
     if(option == 3){
       try{
         dateQuery = new SimpleDateFormat("dd/MM/yyyy").parse(searchQuery);
       }catch (Exception e){
-        e.printStackTrace();
-        return;
+        throw new InvalidSearchQueryException();
       }
     }
     while(begin <= end){
@@ -606,8 +572,7 @@ public class Controller {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      return;
+      throw new InvalidSearchQueryException();
     }
     int begin = 0;
     int end = orders.size() - 1;
@@ -718,6 +683,11 @@ public class Controller {
         Calendar date = Calendar.getInstance();
         date.setTime(currentOrder.getPurchaseDate());
         System.out.println("Buyer's name: " + currentOrder.getBuyerName() + ", Total price:" + currentOrder.getTotalPrice() + ", Date: " + date.get(Calendar.DAY_OF_MONTH) + "/" + (date.get(Calendar.MONTH)+1) + "/" + date.get(Calendar.YEAR) );
+        System.out.println("Order:");
+        ArrayList<Pair<String, Integer>> productList = currentOrder.getProductsList();
+        for (Pair<String, Integer> stringIntegerPair : productList) {
+          System.out.println("Product name: " + stringIntegerPair.getLeft() + ", Ammount: " + stringIntegerPair.getRight());
+        }
       }
     } else {
       for(int i = endPoint; i >= startPoint; i--){
@@ -725,6 +695,11 @@ public class Controller {
         Calendar date = Calendar.getInstance();
         date.setTime(currentOrder.getPurchaseDate());
         System.out.println("Buyer's name: " + currentOrder.getBuyerName() + ", Total price:" + currentOrder.getTotalPrice() + ", Date: " + date.get(Calendar.DAY_OF_MONTH) + "/" + (date.get(Calendar.MONTH)+1) + "/" + date.get(Calendar.YEAR) );
+        System.out.println("Order:");
+        ArrayList<Pair<String, Integer>> productList = currentOrder.getProductsList();
+        for (Pair<String, Integer> stringIntegerPair : productList) {
+          System.out.println("Product name: " + stringIntegerPair.getLeft() + ", Ammount: " + stringIntegerPair.getRight());
+        }
       }
     }
   }

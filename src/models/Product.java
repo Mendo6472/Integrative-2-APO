@@ -32,7 +32,7 @@ public class Product {
   }
 
   public int compareToPrices(Product otherProduct) {
-    return Double.compare(otherProduct.price, this.price);
+    return Double.compare(this.price, otherProduct.price);
   }
 
   public int compareToCategories(Product otherProduct) {

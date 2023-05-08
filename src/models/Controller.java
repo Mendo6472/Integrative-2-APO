@@ -22,7 +22,7 @@ public class Controller {
     orders = connectionOrders.getEntity();
   }
 
-  public void addProduct(String name, String description, double price, int availableQuantity, Category category) {
+  public void addProduct(String name, String description, double price, int availableQuantity, String category) throws Exception {
     Product product;
     int productExist = searchProduct(name);
     if (productExist != -1) {

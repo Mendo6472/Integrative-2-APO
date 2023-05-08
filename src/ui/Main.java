@@ -1,5 +1,6 @@
 package ui;
 import java.io.FileNotFoundException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
@@ -21,7 +22,7 @@ public class Main {
 
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         Main main = new Main();       
         main.cleanConsole();
 
@@ -54,7 +55,7 @@ public class Main {
         return option;
     }
 
-    public void executeOption(int option){
+    public void executeOption(int option) throws Exception {
             
         switch(option) {
             case 1:
@@ -77,7 +78,7 @@ public class Main {
         }
     }
 
-    public void uiAddProduct(){
+    public void uiAddProduct() throws Exception {
         System.out.print("Name: ");
         String name = reader.next();
 
@@ -92,12 +93,10 @@ public class Main {
 
         System.out.print("Category: ");
         String categoryString = reader.next();
-        Category category = Category.valueOf(categoryString);
-
-        controller.addProduct(name, description, price, availableQuantity, category);
+        controller.addProduct(name, description, price, availableQuantity, categoryString);
     }
 
-    public void uiAddOrder(){
+    public void uiAddOrder() throws ParseException {
         System.out.print("Buyer name: ");
         String buyerName = reader.next();
 
@@ -106,7 +105,6 @@ public class Main {
 
         ArrayList<Pair<String, Integer>> productsList = new ArrayList<>();
         double totalPrice = 0;
-        Date date = new Date();
         for (int i = 0; i < quantityTypeProducts; i++) {
             System.out.print("Name product: ");
             String nameProduct = reader.next();
@@ -130,7 +128,7 @@ public class Main {
                 quantityTypeProducts+=1;
             }
         }
-        controller.addOrder(buyerName, productsList, totalPrice, date);
+        controller.addOrder(buyerName, productsList, totalPrice);
 
     }
 

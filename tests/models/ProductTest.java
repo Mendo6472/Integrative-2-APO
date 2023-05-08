@@ -1,9 +1,7 @@
 //You need to put "products.json" found in "tests/data/productTest" in "src/data"
 package models;
 
-import exceptions.WrongCategoryException;
-import exceptions.WrongPriceException;
-import exceptions.WrongQuantityException;
+import exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -115,6 +113,38 @@ class ProductTest {
         setupStage3();
         controller.searchProduct(1,1, "Fahrenheit 451");
         assertEquals("Name: Fahrenheit 451, Description: Novel of Ray Bradbury, Price: 25.0, Quantity: 20, Category: BOOKS, Times sold: 0",outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    void addInventoryTest() throws Exception {
+        setupStage3();
+        String productName = "Laptop";
+        int stockToAdd = 10;
+        controller.addInventory(productName, stockToAdd);
+        int laptop = controller.searchProduct("Laptop");
+        assertEquals(controller.getProducts().get(laptop).getAvailableQuantity(), 30);
+    }
+
+    @Test
+    void addNegativeInventoryTest() throws Exception {
+        setupStage3();
+        Exception exception = assertThrows(WrongQuantityException.class, () -> {
+            String productName = "Laptop";
+            int stockToAdd = -10;
+            controller.addInventory(productName, stockToAdd);
+        });
+        int laptop = controller.searchProduct("Laptop");
+        assertEquals(controller.getProducts().get(laptop).getAvailableQuantity(), 20);
+    }
+
+    @Test
+    void addInventoryNonExistentProductTest() throws Exception {
+        setupStage3();
+        Exception exception = assertThrows(ProductDoesNotExistException.class, () -> {
+            String productName = "PS5";
+            int stockToAdd = 10;
+            controller.addInventory(productName, stockToAdd);
+        });
     }
 
 

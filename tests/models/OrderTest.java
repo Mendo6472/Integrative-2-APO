@@ -1,3 +1,5 @@
+//Before starting the test you should put the products.json and orders.json that are found on Tests/data/orderTest into src/data
+
 package models;
 
 import datastructure.Pair;
@@ -11,8 +13,6 @@ import exceptions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrderTest {
-
-    //Before starting the test you should put the products.json and orders.json that are found on Tests/data/orderTest into src/data
 
     Controller controller;
 

@@ -317,22 +317,28 @@ public class Controller {
     Double doubleIntervalEnd = 0.0;
     boolean condition = false;
     boolean secondCondition = false;
+    boolean wrongIntervalCondition = false;
     try {
       switch (option) {
         case 1, 3 -> {
           characterIntervalStart = intervalStart.toLowerCase().charAt(0);
           characterIntervalEnd = intervalEnd.toLowerCase().charAt(0);
+          wrongIntervalCondition = characterIntervalStart.compareTo(characterIntervalEnd) > 0;
         }
         case 2 -> {
           doubleIntervalStart = Double.parseDouble(intervalStart);
           doubleIntervalEnd = Double.parseDouble(intervalEnd);
+          wrongIntervalCondition = doubleIntervalStart.compareTo(doubleIntervalEnd) > 0;
         }
         case 4 -> {
           integerIntervalStart = Integer.parseInt(intervalStart);
           integerIntervalEnd = Integer.parseInt(intervalEnd);
+          wrongIntervalCondition = integerIntervalStart.compareTo(integerIntervalEnd) > 0;
         }
       }
-
+      if(wrongIntervalCondition){
+        throw new InvalidSearchQueryException();
+      }
     } catch (Exception e) {
       throw new InvalidSearchQueryException();
     }

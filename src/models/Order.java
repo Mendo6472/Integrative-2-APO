@@ -9,7 +9,8 @@ import datastructure.Pair;
 public class Order {
   
   private String buyerName;
-  private ArrayList<Pair<String, Integer>> productsList;
+  private ArrayList<Pair<String, Integer>> productsList; //Lista de tipo Pair que guarda el nombre en la izquierda
+  //y la cantidad comprada a la derecha.
   private double totalPrice;
   private Date purchaseDate;
 

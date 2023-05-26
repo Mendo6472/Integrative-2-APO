@@ -21,7 +21,6 @@ public class Main {
     public Main() throws FileNotFoundException {
         controller = new Controller();
         reader = new Scanner(System.in);
-
     }
 
     public static void main(String[] args) throws Exception {

@@ -39,7 +39,9 @@ public class Controller {
       if(pos == -1) throw new ProductDoesNotExistException();
       if(products.get(pos).getAvailableQuantity() < product.getRight()) throw new NotEnoughStockException();
       products.get(pos).setAvailableQuantity(products.get(pos).getAvailableQuantity()-product.getRight());
+      //Se disminuye la cantidad disponible.
       products.get(pos).setTimesPurchased(products.get(pos).getTimesPurchased() + product.getRight());
+      //Se aumenta la cantidad de veces comprado el producto.
     }
     Order order = new Order(buyerName, productsList, totalPrice);
     orders.add(order);
@@ -179,28 +181,28 @@ public class Controller {
     int end = products.size() - 1;
     Integer timesSoldQuery = 0;
     Double priceQuery = 0.0;
-    if(option == 2){
+    if(option == 2){ //Si la búsqueda del producto es por precio.
       try{
         priceQuery = Double.parseDouble(searchQuery);
       } catch (Exception e){
         throw new InvalidSearchQueryException();
       }
     }
-    if(option == 4){
+    if(option == 4){ //Si la búsqueda del producto es por veces comprado.
       try{
         timesSoldQuery = Integer.parseInt(searchQuery);
       }catch (Exception e){
         throw new InvalidSearchQueryException();
       }
     }
-    if(option == 3){
+    if(option == 3){ //Si la búsqueda del producto es por categoría.
       try{
         Category category = Category.valueOf(searchQuery);
       } catch (Exception e){
         throw new InvalidSearchQueryException();
       }
     }
-    while(begin <= end){
+    while(begin <= end){ //Algoritmo de búsqueda binaria
       int midPoint = (end + begin)/2;
       String midValue;
       Integer intMidValue;
@@ -208,62 +210,64 @@ public class Controller {
       boolean condition = false;
       boolean secondCondition = false;
       switch (option) {
-        case 1 -> {
+        case 1 -> { //Por nombre
           midValue = products.get(midPoint).getName();
-          condition = midValue.compareTo(searchQuery) == 0;
-          secondCondition = searchQuery.compareTo(midValue) > 0;
+          condition = midValue.compareTo(searchQuery) == 0; //Se comprueba si la mitad es igual a lo que se busca.
+          secondCondition = searchQuery.compareTo(midValue) > 0; //Se comprueba si la búsqueda es mayor a la mitad.
         }
-        case 2 -> {
+        case 2 -> { //Por precio
           doubleMidValue = products.get(midPoint).getPrice();
           condition = doubleMidValue.compareTo(priceQuery) == 0;
           secondCondition = priceQuery.compareTo(doubleMidValue) > 0;
         }
-        case 3 -> {
+        case 3 -> { //Por categoría
           midValue = products.get(midPoint).getCategory().toString();
           condition = midValue.compareTo(searchQuery) == 0;
           secondCondition = searchQuery.compareTo(midValue) > 0;
         }
-        case 4 -> {
+        case 4 -> { //Por veces comprado
           intMidValue = products.get(midPoint).getTimesPurchased();
           condition = intMidValue.compareTo(timesSoldQuery) == 0;
           secondCondition = timesSoldQuery.compareTo(intMidValue) > 0;
         }
       }
-      if(condition){
+      if(condition){ //Si la búsqueda coincide con la mitad
         boolean stop = false;
         int startPoint = midPoint;
         int endPoint = midPoint;
-        while (!stop){
-          switch (option) {
-            case 1 -> {
+        while (!stop){ //Se repite hasta que el stop sea falso. Es decir, hasta que ya no se encuentre
+          //la búsqueda.
+          switch (option) { //Se busca hacia la derecha de la mitad, es decir, a los que son mayores a la mitad.
+            case 1 -> { //Por nombre
               String value = products.get(startPoint).getName();
               condition = value.compareTo(searchQuery) < 0;
             }
-            case 2 -> {
+            case 2 -> { //Por precio
               Double value = products.get(startPoint).getPrice();
               condition = value.compareTo(priceQuery) < 0;
             }
-            case 3 -> {
+            case 3 -> { //Por categoría
               String value = products.get(startPoint).getCategory().toString();
               condition = value.compareTo(searchQuery) < 0;
             }
-            case 4 -> {
+            case 4 -> { //Por veces comprado
               Integer value = products.get(startPoint).getTimesPurchased();
               condition = value.compareTo(timesSoldQuery) < 0;
             }
           }
-          if(condition){
+          if(condition){ //Si la búsqueda es mayor, avanza hasta que deje de encontrar a la búsqueda.
             stop = true;
             startPoint++;
           } else if (startPoint == 0) {
             stop = true;
-          } else {
+          } else { //Cuando llegue a un valor que no coincide con la búsqueda, se disminuye hasta quedar
+            //en el último valor que coincidió con la búsqueda.
             startPoint--;
           }
         }
         stop = false;
-        while (!stop){
-          switch (option) {
+        while (!stop){ //Se repite hasta que ya no coincida la búsqueda, es decir, hasta que sea falso.
+          switch (option) { //Ahora se busca a la izquierda del midpoint.
             case 1 -> {
               String value = products.get(endPoint).getName();
               condition = value.compareTo(searchQuery) > 0;
@@ -281,20 +285,21 @@ public class Controller {
               condition = value.compareTo(timesSoldQuery) > 0;
             }
           }
-          if(condition){
+          if(condition){ //Se disminuye hasta que deje de coincidir con la búsqueda.
             stop = true;
             endPoint--;
           } else if (endPoint >= products.size() - 1) {
             stop = true;
-          } else {
+          } else { //Si llega a un punto donde ya no coincide, aumenta hasta el último que coincidió.
             endPoint++;
           }
         }
         printProducts(startPoint, endPoint, order);
         return;
-      }else if(secondCondition){
+      }else if(secondCondition){ //Si el valor buscado está a la derecha del midpoint, ahora el comienzo
+        //será el próximo a la mitad.
         begin = midPoint + 1;
-      }else{
+      }else{ //Si el valor buscado está a la izquierda del midpoint, ahora el final será el anterior a la mitad.
         end = midPoint - 1;
       }
     }
@@ -319,17 +324,17 @@ public class Controller {
     boolean wrongIntervalCondition = false;
     try {
       switch (option) {
-        case 1, 3 -> {
+        case 1, 3 -> { //Categoría y nombre
           characterIntervalStart = intervalStart.toLowerCase().charAt(0);
           characterIntervalEnd = intervalEnd.toLowerCase().charAt(0);
           wrongIntervalCondition = characterIntervalStart.compareTo(characterIntervalEnd) > 0;
         }
-        case 2 -> {
+        case 2 -> { //Precio
           doubleIntervalStart = Double.parseDouble(intervalStart);
           doubleIntervalEnd = Double.parseDouble(intervalEnd);
           wrongIntervalCondition = doubleIntervalStart.compareTo(doubleIntervalEnd) > 0;
         }
-        case 4 -> {
+        case 4 -> { //Veces vendido
           integerIntervalStart = Integer.parseInt(intervalStart);
           integerIntervalEnd = Integer.parseInt(intervalEnd);
           wrongIntervalCondition = integerIntervalStart.compareTo(integerIntervalEnd) > 0;
@@ -343,13 +348,17 @@ public class Controller {
     }
     int begin = 0;
     int end = products.size() - 1;
-    while (begin <= end) {
+    while (begin <= end) { //Algoritmo búsqueda binaria
       int midPoint = (end + begin) / 2;
       switch (option){
         case 1 -> {
-          Character midValue = products.get(midPoint).getName().toLowerCase().charAt(0);
+          Character midValue = products.get(midPoint).getName().toLowerCase().charAt(0); //Se obtiene el primer caracter
+          //del producto de la mitad.
           condition = midValue.compareTo(characterIntervalStart) >= 0 && midValue.compareTo(characterIntervalEnd) <= 0;
-          secondCondition = characterIntervalStart.compareTo(midValue) > 0;
+          //Se pregunta si el primer caracter de la mitad es mayor o igual al caracter inicial de búsqueda. Lo mismo se hace
+          //con el caracter final, pero preguntando si es es mayor o igual.
+          secondCondition = characterIntervalStart.compareTo(midValue) > 0; //Se pregunta si el caracter de comienzo es
+          //mayor que el intervalo del producto de la mitad.
         }
         case 2 -> {
           Double midValue = products.get(midPoint).getPrice();
@@ -372,20 +381,21 @@ public class Controller {
         int startPoint = midPoint;
         int endPoint = midPoint;
         while (!stop) {
-          switch (option) {
+          switch (option) { //Nombre
             case 1 -> {
               Character value = products.get(startPoint).getName().toLowerCase().charAt(0);
-              condition = value.compareTo(characterIntervalStart) < 0;
+              condition = value.compareTo(characterIntervalStart) < 0; //Si el intervalo de inicia es
+              //mayor a la mitad
             }
-            case 2 -> {
+            case 2 -> { //Precio
               Double value = products.get(startPoint).getPrice();
               condition = value.compareTo(doubleIntervalStart) < 0;
             }
-            case 3 -> {
+            case 3 -> { //Categoría
               Character value = products.get(startPoint).getCategory().toString().toLowerCase().charAt(0);
               condition = value.compareTo(characterIntervalStart) < 0;
             }
-            case 4 -> {
+            case 4 -> { //Veces vendido
               Integer value = products.get(startPoint).getTimesPurchased();
               condition = value.compareTo(integerIntervalStart) < 0;
             }
@@ -405,6 +415,7 @@ public class Controller {
             case 1 -> {
               Character value = products.get(endPoint).getName().toLowerCase().charAt(0);
               condition = value.compareTo(characterIntervalEnd) > 0;
+              //Si el valor de la mitad es mayor que el intervalo final
             }
             case 2 -> {
               Double value = products.get(endPoint).getPrice();
@@ -430,7 +441,7 @@ public class Controller {
         }
         printProducts(startPoint, endPoint, order);
         return;
-      }else if(secondCondition){
+      }else if(secondCondition){ //Algoritmo de búsqueda binaria
         begin = midPoint + 1;
       }else{
         end = midPoint - 1;
